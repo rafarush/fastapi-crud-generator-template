@@ -1,0 +1,50 @@
+# Bytecode / cachés
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Entornos virtuales
+.venv/
+venv/
+env/
+
+# Configuración local / credenciales
+.env
+*.env
+.env.*
+.envrc
+
+# Logs y dumps
+*.log
+*.sqlite3
+*.db
+dump.rdb
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+.cache/
+.junit/
+
+# Herramientas de tipo checking / build
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pyre/
+.pytype/
+dist/
+build/
+.eggs/
+*.egg-info/
+
+# IDE / editor
+.vscode/
+.idea/
+*.iml
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
