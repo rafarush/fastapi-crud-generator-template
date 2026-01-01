@@ -42,7 +42,11 @@ build/
 # IDE / editor
 .vscode/
 .idea/
-.idea
+.idea/fastApiProjectTemplate.iml
+.idea/misc.xml
+.idea/modules.xml
+.idea/inspectionProfiles/profiles_settings.xml
+.idea/vcs.xml
 *.iml
 
 # Sistema operativo
