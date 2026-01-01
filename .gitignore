@@ -11,7 +11,6 @@ env/
 # Configuración local / credenciales
 .env
 *.env
-.env.*
 .envrc
 
 # Logs y dumps
@@ -43,6 +42,7 @@ build/
 # IDE / editor
 .vscode/
 .idea/
+.idea
 *.iml
 
 # Sistema operativo
