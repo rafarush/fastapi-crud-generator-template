@@ -1,6 +1,5 @@
 from typing import Generic, TypeVar, Optional, List, Any, Callable, Sequence, Tuple
 from abc import ABC, abstractmethod
-
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 from sqlalchemy import func, and_, or_, desc, asc, Row, RowMapping

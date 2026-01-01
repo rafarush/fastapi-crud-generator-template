@@ -33,7 +33,7 @@ class UserService:
             if params.last_name:
                 conditions.append(model.last_name.ilike(f"%{params.last_name}%"))
             if params.date_created:
-                conditions.append(model.email.ilike(f"%{params.id}%"))
+                conditions.append(model.email.ilike(f"%{params.date_created}%"))
             return and_(*conditions) if conditions else True
 
         def order_by(model):
