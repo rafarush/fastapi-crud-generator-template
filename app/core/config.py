@@ -1,7 +1,7 @@
 from typing import Optional
 
 from pydantic import ConfigDict
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
@@ -21,7 +21,7 @@ class Settings(BaseSettings):
             return f"postgresql+psycopg2://{self.DATABASE_USER}:{self.DATABASE_PASSWORD}@{self.DATABASE_HOST}:{self.DATABASE_PORT}/{self.DATABASE_NAME}"
         return self.DATABASE_URL
 
-    model_config = ConfigDict(_env_file='.env')
+    model_config = SettingsConfigDict(env_file='.env')
 
 
 settings = Settings()

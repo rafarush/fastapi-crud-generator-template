@@ -80,7 +80,7 @@ class BaseService(Generic[T, TInput, TUpdate, TOutput, TPaginatedInput], ABC):
             if existing:
                 raise HTTPException(status_code=HTTPStatus.CONFLICT, detail=f"{self.model.__name__} already exists")
 
-        entity = self.model(**entity_input.dict())
+        entity = self.model(**entity_input.model_dump())
         result, error = await self.repo.add(entity)
 
         if error:
