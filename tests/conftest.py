@@ -2,7 +2,7 @@ import pytest
 from typing import Generator
 from unittest.mock import MagicMock
 from fastapi.testclient import TestClient
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, StaticPool
 from sqlalchemy.orm import sessionmaker
 from sqlmodel import SQLModel
 
@@ -10,11 +10,17 @@ from app.main import app
 from app.database.session import get_db
 from app.models.user import User
 
-SQLITE_TEST_URL = "sqlite:///./test.db"
+# SQLITE_TEST_URL = "sqlite:///./test.db"
+# engine = create_engine(
+#     SQLITE_TEST_URL,
+#     connect_args={"check_same_thread": False},
+#     poolclass=None
+# )
+SQLITE_TEST_URL = "sqlite:///"  # In-memory, no archivo
 engine = create_engine(
     SQLITE_TEST_URL,
     connect_args={"check_same_thread": False},
-    poolclass=None
+    poolclass=StaticPool
 )
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
