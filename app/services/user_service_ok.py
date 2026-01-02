@@ -52,7 +52,7 @@ class UserServiceOK(BaseService[User, UserInput, UserUpdateInput, UserOutput, Us
     async def create_user(self, user_input: UserInput):
         return await self.create(user_input, conflict_predicate=lambda u: u.email == user_input.email)
 
-    async def update_user(self, user_id: uuid.UUID, user_input: UserUpdateInput):
+    async def update_item(self, user_id: uuid.UUID, user_input: UserUpdateInput):
         def updater(entity: User, data: UserUpdateInput):
             entity.name = data.name
             entity.last_name = data.last_name

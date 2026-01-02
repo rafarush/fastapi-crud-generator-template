@@ -135,7 +135,7 @@ class BaseRepository(Generic[T], ABC):
 
     async def remove(self, entity: T) -> Tuple[bool, Optional[str]]:
         try:
-            self.db.delete(entity)
+            entity.is_deleted = True
             self.db.commit()
             return True, None
         except IntegrityError as e:
@@ -144,7 +144,8 @@ class BaseRepository(Generic[T], ABC):
     async def remove_range(self, entities: List[T]) -> Tuple[bool, Optional[str]]:
         try:
             for entity in entities:
-                self.db.delete(entity)
+                entity.is_deleted = True
+                # self.db.delete(entity)
             self.db.commit()
             return True, None
         except IntegrityError as e:

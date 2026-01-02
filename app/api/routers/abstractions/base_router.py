@@ -1,7 +1,8 @@
 from typing import TypeVar, Generic, Callable, Type, Optional, List, Any, Tuple
 from fastapi import APIRouter, Depends, status
+from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import Session
-
+from fastapi.responses import JSONResponse
 from app.database.session import get_db
 from app.schemas.abstractions.paginated_output import PaginatedOutput
 from app.services.abstractions.base_service import BaseService
@@ -49,12 +50,13 @@ class BaseRouter(Generic[TService, TInput, TUpdate, TOutput, TPaginatedInput]):
     #     return self.service_factory(db)
 
     def _register_routes(self):
-        # GET /{id}
+
         id_type = self.id_type
         paginated_input_schema = self.paginated_input_schema
         input_schema = self.input_schema
         update_schema = self.update_schema
 
+        # GET /{id}
         @self.router.get(
             "/{item_id}",
             response_model=self.output_schema,
@@ -90,8 +92,13 @@ class BaseRouter(Generic[TService, TInput, TUpdate, TOutput, TPaginatedInput]):
                 payload: input_schema,
                 service: TService = Depends(self.service_dependency),
         ):
-            # Por defecto, create sin conflict_predicate (el service concreto lo puede sobrecargar)
-            return await service.create(payload)
+            result = await service.create(payload)
+            location = f"{self.router.prefix}/{result.id}"
+            return JSONResponse(
+                    status_code=status.HTTP_201_CREATED,
+                    content=jsonable_encoder(self.output_schema.model_validate(result, from_attributes=True)),
+                    headers={"Location": location}
+            )
 
         # PUT /{id}
         @self.router.put(

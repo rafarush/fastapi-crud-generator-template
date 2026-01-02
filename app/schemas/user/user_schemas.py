@@ -39,13 +39,12 @@ class UserOutput(BaseModel):
 
 
 class UserCreated(BaseModel):
-    id: str
+    id: uuid.UUID
     email: EmailStr
     name: str
     last_name: str
     date_created: datetime
     date_updated: Optional[datetime] = None
-    self: str
 
     class Config:
         from_attributes = True
