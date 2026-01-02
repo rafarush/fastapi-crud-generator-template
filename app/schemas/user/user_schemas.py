@@ -3,7 +3,7 @@ from datetime import datetime
 from typing import Optional, Literal
 
 from fastapi.params import Query
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, ConfigDict
 
 from app.schemas.abstractions.paginated_input import PaginatedInput
 
@@ -14,16 +14,14 @@ class UserInput(BaseModel):
     name: str
     last_name: str
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class UserUpdateInput(BaseModel):
     name: str
     last_name: str
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class UserOutput(BaseModel):
@@ -34,8 +32,7 @@ class UserOutput(BaseModel):
     date_created: datetime
     date_updated: Optional[datetime] = None
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class UserCreated(BaseModel):
@@ -46,8 +43,7 @@ class UserCreated(BaseModel):
     date_created: datetime
     date_updated: Optional[datetime] = None
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class UserPaginatedInput(PaginatedInput):
