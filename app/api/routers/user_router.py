@@ -1,5 +1,5 @@
 import uuid
-from fastapi import APIRouter, status, Depends
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from app.api.routers.abstractions.base_router import BaseRouter
@@ -7,7 +7,7 @@ from app.schemas.user.user_schemas import (
     UserInput, UserUpdateInput, UserOutput, UserPaginatedInput,
 )
 from app.database.session import get_db
-from app.services.user_service import UserService
+from app.services.user.user_service import UserService
 
 
 def user_service_factory(db: Session = Depends(get_db)) -> UserService:
@@ -27,6 +27,7 @@ user_base_router = BaseRouter[
     output_schema=UserOutput,
     paginated_input_schema=UserPaginatedInput,
     prefix="/users",
+    resource_name="user",
     tags=["Users"],
     id_type=uuid.UUID,
 )
