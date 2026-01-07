@@ -33,6 +33,7 @@ class BaseRouter(Generic[TService, TInput, TUpdate, TOutput, TPaginatedInput]):
             output_schema: Type[TOutput],
             paginated_input_schema: Type[TPaginatedInput],
             prefix: str,
+            resource_name: str,
             tags: Optional[list[str]] = None,
             id_type: Type[Any] = str,  # uuid.UUID, int, etc.
     ):
@@ -43,8 +44,10 @@ class BaseRouter(Generic[TService, TInput, TUpdate, TOutput, TPaginatedInput]):
         self.output_schema = output_schema
         self.paginated_input_schema = paginated_input_schema
         self.id_type = id_type
+        self.resource_name = resource_name
         self.service_dependency = get_service_dependency(service_factory)
         self._register_routes()
+
 
     def _register_routes(self):
 
