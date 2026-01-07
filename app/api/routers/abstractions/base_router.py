@@ -46,9 +46,6 @@ class BaseRouter(Generic[TService, TInput, TUpdate, TOutput, TPaginatedInput]):
         self.service_dependency = get_service_dependency(service_factory)
         self._register_routes()
 
-    # def _get_service(self, db: Session = Depends(get_db)) -> TService:
-    #     return self.service_factory(db)
-
     def _register_routes(self):
 
         id_type = self.id_type

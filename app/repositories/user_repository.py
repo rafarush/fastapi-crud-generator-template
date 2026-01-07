@@ -10,6 +10,6 @@ class UserRepository(BaseRepository[User]):
     def model(self) -> type[User]:
         return User
 
-    # Métodos personalizados opcionales
-    async def get_by_email(self, db: Session, email: str) -> Optional[User]:
+    # Custom functions
+    async def get_by_email(self, email: str) -> Optional[User]:
         return await self.first_or_default(lambda u: u.email == email)

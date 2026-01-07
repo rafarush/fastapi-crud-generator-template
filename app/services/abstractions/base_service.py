@@ -1,8 +1,8 @@
 from abc import ABC, abstractmethod
 from http import HTTPStatus
-from typing import Any, Generic, TypeVar, List, Optional, Callable, Tuple, Sequence
-
-from fastapi import HTTPException
+from typing import Any, Generic, TypeVar, List, Optional, Callable, Tuple, Sequence, Type
+from app.database.session import get_db
+from fastapi import HTTPException, Depends
 from sqlalchemy.orm import Session
 from sqlalchemy import and_
 from sqlmodel import SQLModel
@@ -14,18 +14,23 @@ TInput = TypeVar("TInput")
 TUpdate = TypeVar("TUpdate")
 TOutput = TypeVar("TOutput")
 TPaginatedInput = TypeVar("TPaginatedInput")
+R = TypeVar('R', bound=BaseRepository)
 
 
 class BaseService(Generic[T, TInput, TUpdate, TOutput, TPaginatedInput], ABC):
     def __init__(self, db: Session):
         self.db = db
-        self.repo = self.repository_class(db)
+        self._repository = self.repository_class(db)
 
     @property
     @abstractmethod
     def repository_class(self) -> type[BaseRepository[T]]:
         """Return concrete class of Repository (ex: UserRepository)."""
         pass
+
+    @property
+    def repository(self) -> R:
+        return self._repository
 
     @property
     @abstractmethod
@@ -46,21 +51,21 @@ class BaseService(Generic[T, TInput, TUpdate, TOutput, TPaginatedInput], ABC):
         return None
 
     async def get_by_id(self, entity_id: Any):
-        entity = await self.repo.get_by_id(entity_id)
+        entity = await self.repository.get_by_id(entity_id)
         if not entity:
             raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail=f"{self.model.__name__} not found")
 
         return self.output_schema.model_validate(entity, from_attributes=True, extra="ignore")
 
     async def get_paged(
-        self,
-        params: TPaginatedInput,
-        predicate_fn: Optional[Callable[[Any], Any]] = None,
-        order_by_fn: Optional[Callable[[Any], Any]] = None,
+            self,
+            params: TPaginatedInput,
+            predicate_fn: Optional[Callable[[Any], Any]] = None,
+            order_by_fn: Optional[Callable[[Any], Any]] = None,
     ) -> Tuple[List[TOutput], int]:
         """ Return paginated output with personalized query params """
         predicate = predicate_fn or (lambda m: True)
-        entities, total = await self.repo.get_paged(
+        entities, total = await self.repository.get_paged(
             page_number=params.page,
             page_size=params.size,
             predicate=predicate,
@@ -76,12 +81,12 @@ class BaseService(Generic[T, TInput, TUpdate, TOutput, TPaginatedInput], ABC):
 
     async def create(self, entity_input: TInput, conflict_predicate: Optional[Callable[[T], Any]] = None):
         if conflict_predicate:
-            existing = await self.repo.first_or_default(conflict_predicate)
+            existing = await self.repository.first_or_default(conflict_predicate)
             if existing:
                 raise HTTPException(status_code=HTTPStatus.CONFLICT, detail=f"{self.model.__name__} already exists")
 
         entity = self.model(**entity_input.model_dump())
-        result, error = await self.repo.add(entity)
+        result, error = await self.repository.add(entity)
 
         if error:
             raise HTTPException(status_code=HTTPStatus.CONFLICT, detail=error)
@@ -91,18 +96,18 @@ class BaseService(Generic[T, TInput, TUpdate, TOutput, TPaginatedInput], ABC):
         return self.output_schema.model_validate(result, from_attributes=True, extra="ignore")
 
     async def update(
-        self,
-        entity_id: Any,
-        update_data: TUpdate,
-        update_fn: Callable[[T, TUpdate], None]
+            self,
+            entity_id: Any,
+            update_data: TUpdate,
+            update_fn: Callable[[T, TUpdate], None]
     ):
         """Update enity using personalized mapping"""
-        entity = await self.repo.first_or_default(lambda m: m.id == entity_id)
+        entity = await self.repository.first_or_default(lambda m: m.id == entity_id)
         if not entity:
             raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail=f"{self.model.__name__} not found")
 
         update_fn(entity, update_data)
-        result, error = await self.repo.update(entity)
+        result, error = await self.repository.update(entity)
 
         if error:
             raise HTTPException(status_code=HTTPStatus.CONFLICT, detail=error)
@@ -110,11 +115,11 @@ class BaseService(Generic[T, TInput, TUpdate, TOutput, TPaginatedInput], ABC):
         return self.output_schema.model_validate(result, from_attributes=True, extra="ignore")
 
     async def delete(self, entity_id: Any):
-        entity = await self.repo.first_or_default(lambda m: m.id == entity_id)
+        entity = await self.repository.first_or_default(lambda m: m.id == entity_id)
         if not entity:
             raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail=f"{self.model.__name__} not found")
 
-        success, error = await self.repo.remove(entity)
+        success, error = await self.repository.remove(entity)
         if not success:
             raise HTTPException(status_code=HTTPStatus.CONFLICT, detail=error)
         return True
